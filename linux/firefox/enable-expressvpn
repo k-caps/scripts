@@ -1,0 +1,3 @@
+sudo apt purge firefox
+sudo apt install firefox
+expressvpn install-firefox-extension

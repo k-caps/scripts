@@ -1,0 +1,2 @@
+du -shx /path/* | sort -rh | head
+du -shx ./* | sort -rh | head -n 35

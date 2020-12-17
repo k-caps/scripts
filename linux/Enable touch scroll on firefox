@@ -1,0 +1,3 @@
+open about:config in firefox to set dom.w3c_touch_events.enabled=1 (default is 2).
+echo MOZ_USE_XINPUT2 DEFAULT=1 >> /etc/security/pam_env.conf
+sudo shutdown -r now

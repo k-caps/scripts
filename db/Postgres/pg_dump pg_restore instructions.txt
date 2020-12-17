@@ -1,0 +1,16 @@
+# To dump the database
+pg_dump <dbname> -F tar > /path/to/<dbname>_17_05_2017.dmp
+
+# To load the dump (must run from directory containing the.dmp file)
+pg_restore -Cc < /path/to/<dbname>_17_05_2017.dmp
+
+
+#pg_restore <dbname> --schema=<schema_name> --table=<dump_name >
+
+
+# 0 level compression directory dump/restore, of a paticular schema, with 4 threads
+time \
+pg_dump -d <dbname> -Fd -f /dump/destination/dir/ -Z 0 -j 4 -n <schema_name>
+
+time \
+pg_rsetore -d <dbname> /dump/destination/dir/ -j 4 -n <schema_name> -c --if-exists

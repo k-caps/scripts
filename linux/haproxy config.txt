@@ -1,0 +1,64 @@
+# Master and slave proxying with HAPROXY
+
+# First create a folder containing the configuration file. (The file MUST be called haproxy.cfg):
+mkdir -p /data/haproxy/config && touch /data/haproxy/config/haproxy.cfg
+
+# Edit the file and have it contain the following configuration:
+#---------------------------------------------------------------------
+#---------------------------------------------------------------------
+global
+		log 127.0.0.1 local0
+		log 127.0.0.1 local1 notice
+		maxconn 4096
+		#user haproxy
+		#group haproxy
+
+defaults
+		mode tcp
+		option tcplog
+		option dontlognull
+		maxconn 4096
+		log global
+		retries 3
+		timeout client 5000
+		timeout connect 5000
+		timeout server 5000
+
+# Main postgres cluster
+listen pgcluster
+		bind 0.0.0.0:5432
+		#balance roundrobin
+		mode tcp
+		option pgsql-check user postgres
+		server repmaster IP.AD.DR:ESS:PORT check port 4567
+		server repslave IP.AD.DR:ESS:PORT backup check port 7654
+
+
+# Haproxy web GUI
+listen  stats
+		bind 0.0.0.0:9000
+		mode http
+		stats enable
+		stats uri /haproxy
+		stats realm HAProxy\ Statistics
+
+# Authentication parmeters. Can be set to anything. escape with backslash.
+		stats auth admin:Aa123456
+
+# Allows to take down and bring back up backend servers.
+# Produces errors on old HAProxy versions.
+		stats admin if  TRUE
+		#stats refresh 5s
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+
+# Create and run the docker using the configuration directory you created:
+docker run -h haproxy -p 54323:5432 -p 9000:9000 -v /home/admin/data/haproxy/:/usr/local/etc/haproxy/ --name haproxy -d haproxy:1.7
+
+# To view the web GUI enter the following URL into a web browser, and sign in using the parameters you provided:
+# (Where ip and port is the host, not the container.)
+http://IP.AD.DR:ESS:9000/haproxy
+
+# Thats it. Assuming all ports are correctly configured in all docker containers and commands, everything should work fine.
+
+# At time of writing, the connection to postgres drops after some time, and must be refreshed.. Have not yet found a fix.

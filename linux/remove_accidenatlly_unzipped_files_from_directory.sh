@@ -1,0 +1,1 @@
+zipinfo zipname.zip | grep -v "/." | awk 'NR>2{print $9}' | sed '$d'| xargs rm -rf

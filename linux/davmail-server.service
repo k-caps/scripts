@@ -1,0 +1,10 @@
+[Unit]
+Description=Runs davmail server mode
+
+[Service]
+ExecStart=davmail ~/.davmail.properties
+Type=forking
+PIDfile=/var/run/davmail.pid
+
+[Install]
+WantedBy=multi-user.target
