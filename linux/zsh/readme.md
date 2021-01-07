@@ -6,8 +6,9 @@ During the script's run, you will be asked if you want to set zsh as your defaul
 ```
 curl https://gitlab.com/k-caps/linux-scripts/-/raw/master/p10k.zsh | sed "s|/home/kobi|$HOME|g"  > ~/.p10k.zsh
 ```
+, though I don't advise it as it is custom made for my own machine and might require tinkering.
 
-More information and screenshots can be found on my [medium blog](https://medium.com/for-linux-users/my-linux-terminal-setup-d10b28d0ce84)
+More information and screenshots can be found on my [medium blog](https://medium.com/for-linux-users/my-linux-terminal-setup-d10b28d0ce84).
 
 
 
