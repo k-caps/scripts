@@ -6,7 +6,7 @@ if [ -n "$(which apt)" ]; then
   PKG=apt
 elif [ -n "$(which yum)" ]; then
   printf "\n\nfedora/rhel/centos detected, using yum\n\n"
-  PKG-yum
+  PKG=yum
 else
   echo Install the following packages and then manually continue the script from this point:
   echo git zsh wget curl
