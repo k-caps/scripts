@@ -1,5 +1,19 @@
 #!/bin/bash
-apt install git zsh wget curl -y
+
+#Packages
+if [ -n "$(which apt)" ]; then
+  printf  "\n\n*buntu detected, using apt\n\n"
+  PKG=apt
+elif [ -n "$(which yum)" ]; then
+  printf "\n\nfedora/rhel/centos detected, using yum\n\n"
+  PKG-yum
+else
+  echo Install the following packages and then manually continue the script from this point:
+  echo git zsh wget curl
+  exit
+fi
+
+$PKG install git zsh wget curl -y
 sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
 cd ~
 touch .aliases
