@@ -1,0 +1,4 @@
+alias locate="locate -i" 
+alias vi="vim"
+alias killapp="~/scripts/killapp.sh"
+#alias python="python3"
