@@ -1,7 +1,8 @@
 /usr/pgsql-11/bin/repmgr -f /etc/repmgr/11/repmgr.conf daemon pause
 /usr/pgsql-11/bin/repmgr -f /etc/repmgr/11/repmgr.conf cluster show
 /usr/pgsql-11/bin/repmgr -f /etc/repmgr/11/repmgr.conf daemon status
-/usr/pgsql-11/bin/repmgr -f /etc/repmgr/11/repmgr.conf node rejoin -d 'host=hostname.com dbname=repmgr user-repmgr' --force-rewind --config-files=postgresql.conf,pg_hba.conf,server.crt,server.key
+# Run on old master (postgres can't be running)
+/usr/pgsql-11/bin/repmgr -f /etc/repmgr/11/repmgr.conf node rejoin -d 'host=hostname.com dbname=repmgr user=repmgr' --force-rewind --config-files=postgresql.conf,pg_hba.conf,server.crt,server.key
 
 --# Standby clone
 sudo su - postgres
