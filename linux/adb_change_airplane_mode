@@ -1,0 +1,6 @@
+adb shell settings get global airplane_mode_radios
+
+adb shell settings put global airplane_mode_radios "cell,wifi,nfc,wimax"
+
+# Reboot phone
+#This example removes bluetooth
