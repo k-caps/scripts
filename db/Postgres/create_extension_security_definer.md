@@ -1,4 +1,3 @@
-
 ## Postgres self service function creation
 First, as susperuser, prepare the schema "dbaas" on each client database (and template1)
 ```sql
@@ -43,7 +42,7 @@ SECURITY DEFINER
 -- Set a secure search_path: trusted schema(s), then 'pg_temp' to prevent schema abuse.
 SET search_path = dbaas, pg_temp;
 REVOKE ALL ON FUNCTION dbaas.create_extension(p_extname TEXT) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION dbaas.create_extension(p_extname TEXT) TO ;
+GRANT EXECUTE ON FUNCTION dbaas.create_extension(p_extname TEXT) TO <client username>;
 GRANT USAGE ON schema dbaas to <client username>;
 ```
 
