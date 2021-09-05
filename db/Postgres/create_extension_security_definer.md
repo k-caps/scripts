@@ -46,7 +46,7 @@ GRANT EXECUTE ON FUNCTION dbaas.create_extension(p_extname TEXT) TO <client user
 GRANT USAGE ON schema dbaas to <client username>;
 ```
 
-Then to create ab extension as a non superuser, you will be able to run the following:
+Then to create an extension as a non superuser, you will be able to run the following:
 
 `select dbaas.create_extension('pgcrypto','hstore','jsquery');`
 
