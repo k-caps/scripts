@@ -1,6 +1,6 @@
 # Preparing a linux plex server
 1. Install the plex media server app
-1. 
+1.
 ```bash
 sudo mkdir /var/lib/plexmediaserver/{Anime,TV,Movies}
 sudo adduser kobi plex
