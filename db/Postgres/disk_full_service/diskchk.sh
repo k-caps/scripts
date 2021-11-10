@@ -57,7 +57,7 @@ else
 		touch $lockfile
 		printf "$(date +%d_%m-%H:%M) => Disk usage at %%$usage. Attempting to set cluster to readonly..\n" >> $log
 		set_ro=$(set_readonly)
-		if [[ set_ro != 0 ]]; then
+		if [[ $set_ro != 0 ]]; then
 			printf "$(date +%d_%m-%H:%M) => There was an error setting cluster to readonly.\n" >> $log
 		else
 			printf "$(date +%d_%m-%H:%M) => Cluster successfully set to readonly.\n" >> $log
@@ -66,4 +66,4 @@ else
 		# When disk is not full wait five seconds. When the script exits systemd will run it again.
 		sleep 5
 	fi	
-fi
+f
