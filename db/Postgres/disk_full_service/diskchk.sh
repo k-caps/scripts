@@ -53,7 +53,7 @@ else
 	# Check if disk usage % is higher than allowed and if so, call set_readonly().
 
 	usage=$(df -h | grep -w $device | awk '{print $5}' | sed 's/%//g')
-	if (( $usage > $max_allowed_usage_level )); then
+	if (( $usage >= $max_allowed_usage_level )); then
 		touch $lockfile
 		printf "$(date +%d_%m-%H:%M) => Disk usage at %$usage. Attempting to set DB to readonly\n" >> $log
 		set_ro=$(set_readonly)
