@@ -1,0 +1,10 @@
+[Unit]
+Description=Checks the disk usage percent every five seconds and sets postgres to readonly mode whan disk hits %90
+
+[Service]
+Type=simple
+ExecStart=/opt/pgscripts/diskchk.sh
+Restart=Always
+
+[Install]
+WantedBy=multi-user.target
