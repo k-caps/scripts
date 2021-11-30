@@ -1,1 +1,5 @@
-sudo sed -i 's/#Port 22/Port 2222/g' /etc/ssh/sshd_config && sudo semanage port -a -t ssh_port_t -p tcp 2222 && sudo systemctl restart sshd && sudo firewall-cmd --add-port=2222/tcp --permanent && sudo firewall-cmd --reload
+sudo sed -i 's/#Port 22/Port 2222/g' /etc/ssh/sshd_config && \
+sudo semanage port -a -t ssh_port_t -p tcp 2222 && \
+sudo systemctl restart sshd && \
+sudo firewall-cmd --add-port=2222/tcp --permanent && \
+sudo firewall-cmd --reload
