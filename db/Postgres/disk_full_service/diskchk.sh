@@ -7,7 +7,7 @@ max_allowed_usage_level=95
 pguser=postgres
 
 set_readonly() {
-	dblist=$(psql -tU postgres -c "SELECT datname FROM pg_database WHERE datname NOT IN ('template0','template1','postgres')")
+	dblist=$(psql -tU postgres -c "SELECT datname FROM pg_database WHERE datname NOT IN ('template0','template1','postgres','repmgr')")
 	for db in $dblist
 	do
 		psql -U $pguser -c "ALTER DATABASE $db SET default_transaction_read_only = true;"
