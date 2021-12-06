@@ -2,8 +2,8 @@
 
 log=~/dskchk.log
 lockfile=~/.dskchk.lock
-device=/ #checks this mount point's usage
-max_allowed_usage_level=80
+device=/ #checks this mount point's usage (DO NOT USE TRAILING SLASH!)
+max_allowed_usage_level=95
 pguser=postgres
 
 set_readonly() {
@@ -66,4 +66,4 @@ else
 		# When disk is not full wait five seconds. When the script exits systemd will run it again.
 		sleep 5
 	fi	
-f
+fi
