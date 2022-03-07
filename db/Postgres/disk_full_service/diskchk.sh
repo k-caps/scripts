@@ -2,12 +2,12 @@
 
 log=~/dskchk.log
 lockfile=~/.dskchk.lock
-device=/ #checks this mount point's usage
-max_allowed_usage_level=80
+device=/ #checks this mount point's usage (DO NOT USE TRAILING SLASH!)
+max_allowed_usage_level=95
 pguser=postgres
 
 set_readonly() {
-	dblist=$(psql -tU postgres -c "SELECT datname FROM pg_database WHERE datname NOT IN ('template0','template1','postgres')")
+	dblist=$(psql -tU postgres -c "SELECT datname FROM pg_database WHERE datname NOT IN ('template0','template1','postgres','repmgr')")
 	for db in $dblist
 	do
 		psql -U $pguser -c "ALTER DATABASE $db SET default_transaction_read_only = true;"
@@ -66,4 +66,4 @@ else
 		# When disk is not full wait five seconds. When the script exits systemd will run it again.
 		sleep 5
 	fi	
-f
+fi

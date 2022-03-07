@@ -72,6 +72,11 @@ xterm*|rxvt*)
     ;;
 esac
 
+# Add quote to variable function
+qecho() { 
+  echo $1 | sed 's/^/"/g ; s/$/"/g' 
+} 
+
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
@@ -128,6 +133,7 @@ if [ -f `which powerline-daemon` ]; then
   POWERLINE_BASH_SELECT=1
   . /usr/share/powerline/bindings/bash/powerline.sh
 fi
+
 
 
 
