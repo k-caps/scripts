@@ -1,4 +1,15 @@
 #!/bin/bash
+# Assumes the following directory structure:
+# python_home/
+#   venvs/
+#     venv1/
+#	  venv2/
+#   projects/
+#     project1/
+#       project1.py  
+
+# a python project directory contains source code files, and a correspondingly named venv is in the venvs folder.
+
 PYROJECT=$1
 PYHOME="/home/kobi/Dev/git/python"
 PYVERSION=3
