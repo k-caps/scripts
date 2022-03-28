@@ -3,4 +3,4 @@
 	url = git@gitlab.com:k-caps/python-scripts
 [submodule "pegasus"]
 	path = db/Postgres/repmgr/pegasus
-	url = https://gitlab.com/k-caps/pegasus
+	url = git@gitlab.com:k-caps/pegasus
