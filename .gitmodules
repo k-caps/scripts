@@ -1,7 +1,6 @@
 [submodule "python"]
 	path = python
-	url = ssh://gitlab.com/k-caps/python-scripts
-
+	url = git@gitlab.com:k-caps/python-scripts
 [submodule "pegasus"]
-	path = db/postgres/repmgr/pegasus
-	url = ssh://gitlab.com/k-caps/pegasus
+	path = db/Postgres/repmgr/pegasus
+	url = https://gitlab.com/k-caps/pegasus
