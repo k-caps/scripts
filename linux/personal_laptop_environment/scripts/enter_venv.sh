@@ -10,12 +10,17 @@
 
 # a python project directory contains source code files, and a correspondingly named venv is in the venvs folder.
 
+if [[ -z $1 ]]; then
+	printf "A venv name must be supplied. Try running something like:\nsource enter_venv.sh pelican\n"
+	exit 
+fi	
+
 PYROJECT=$1
-PYHOME="/home/kobi/Dev/git/python"
+PYHOME="/data/data/com.termux/files/home/python_home"
 PYVERSION=3
-if [[ ! -d $PYHOME/venvs/$PYROJECT ]];
-then 
+if [[ ! -d $PYHOME/venvs/$PYROJECT ]]; then 
 	printf "The project "$PYROJECT" does not exist.\nCreating Virtual environment in:\n$PYHOME/venvs.\n"
+	mkdir -p $PYHOME/venvs $PYHOME/projects
 	cd $PYHOME/venvs/
 	python$PYVERSION -m venv $PYROJECT
 	if [[ ! -d $PYHOME/venvs/$PYROJECT ]]; then
@@ -34,3 +39,4 @@ EOF
 fi
 cd $PYHOME/projects/$PYROJECT
 source $PYHOME/venvs/$PYROJECT/bin/activate
+
