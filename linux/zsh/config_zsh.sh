@@ -13,7 +13,7 @@ else
   exit
 fi
 
-$PKG install git zsh wget curl -y
+sudo $PKG install git zsh wget curl -y
 sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
 cd ~
 touch .aliases
