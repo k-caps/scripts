@@ -1,6 +1,3 @@
-[submodule "python"]
-	path = python
-	url = git@gitlab.com:k-caps/python-scripts
 [submodule "pegasus"]
 	path = db/Postgres/repmgr/pegasus
 	url = git@gitlab.com:k-caps/pegasus
