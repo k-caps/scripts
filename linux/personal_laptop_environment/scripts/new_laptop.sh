@@ -20,10 +20,11 @@ pip install powerline-status
 
 # Patched nerd font with all OS glyphs
 cd ~/Downloads
+mkdir -p ~/.local/share/fonts/
 mkdir hack_font_temp_dir && cd hack_font_temp_dir
 wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/Hack.zip -O Hack.zip
 unzip Hack.zip 'Hack Italic Nerd Font Complete.ttf'
-mv 'Hack Italic Nerd Font Complete.ttf' ~/.local/share/fonts/'Hack Regular Nerd Font Complete.ttf'
+mv 'Hack Regular Nerd Font Complete.ttf' ~/.local/share/fonts/'Hack Regular Nerd Font Complete.ttf'
 fc-cache -f -v
 cd .. && rm -rf hack_font_temp_dir
 read -p "Change Terminal app settings to use Hack Nerd Font and click any key to continue" -n 1 -s
