@@ -40,3 +40,7 @@
 <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScQQaI4fZWfNPykmWDMqdGKJ3yWvUrZ08DjUfvyFzc2gSb5cg/viewform?embedded=true" width="700" height="800" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
 </details>
 ```
+
+```html
+<script>window.location = "/pages/main-list.html"</script>
+```
