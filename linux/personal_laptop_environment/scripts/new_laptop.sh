@@ -36,7 +36,7 @@ fi
 
 # Shell theme, cursors, and icons:
 cd ~/Downloads && mkdir -p Themes && cd Themes
-if [[ $(ls | grep WhiteSur |wc -l) != 3 ]];l then
+if [[ $(ls | grep WhiteSur |wc -l) != 3 ]]; then
     theme_repos=("cursors" "gtk-theme" "icon-theme")
     for repo in "${theme_repos[@]}" ; do
         git clone https://github.com/vinceliuice/WhiteSur-$repo
@@ -78,18 +78,18 @@ if [[ $(dpkg -l | grep docker | wc -l) == 0 ]]; then
 else
     echo Docker is already installed, skipping   
 fi
+
 # Set custom environment
 if [[ $(which venvmgr | wc -l) == 0 ]]; then
-cd ~ && mkdir -p Dev/git && cd Dev/git
-git clone git@gitlab.com:k-caps/scripts.git
-ln -s ~/Dev/git/scripts/linux/personal_laptop_environment/scripts ~/Scripts
-cd ~/Scripts && source venvmgr.sh -I
-
-cd ~/Downloads
+    cd ~ && mkdir -p Dev/git && cd Dev/git
+    git clone git@gitlab.com:k-caps/scripts.git
+    ln -s ~/Dev/git/scripts/linux/personal_laptop_environment/scripts ~/Scripts
+    cd ~/Scripts && source venvmgr.sh -I
 else
     echo Scripts directory is in place, skipping
 fi
 
+cd ~/Downloads
 dotfiles=("aliases" "bashrc" "zshrc" "vimrc" "tmux.conf")
 for file in "${dotfiles[@]}" ; do
 	wget https://gitlab.com/k-caps/scripts/-/raw/master/linux/personal_laptop_environment/dotfiles/$file
@@ -110,7 +110,7 @@ cd ..
 rm -rf 'Gnome Extensions'
 
 # Fix touchscreen scrolling in firefox
-if [[ $(grep MOZ_USE_XINPUT2 /etc/security/pam_env.conf) == 0]]; then
+if [[ $(grep MOZ_USE_XINPUT2 /etc/security/pam_env.conf) == 0 ]]; then
     echo "open about:config in firefox, and set dom.w3c_touch_events.enabled=1 (default is 2)."
     sleep 5 && read -p "Once you have updated the settings in Firefox click any key to continue.." -n 1 -s
     sudo sh -c 'echo MOZ_USE_XINPUT2 DEFAULT=1 >> /etc/security/pam_env.conf'
@@ -119,14 +119,14 @@ else
 fi
 
 # Change to oh my zsh
-if [[ $(echo $SHELL | grep zsh |wc -l) == 0]]; then 
+if [[ $(echo $SHELL | grep zsh |wc -l) == 0 ]]; then 
     sh -c "$(wget https://gitlab.com/k-caps/scripts/-/raw/master/linux/zsh/config_zsh.sh -O -)"
 else
     echo The default shell is already ZSH, skipping
 fi
 
 # Disable default systemd timeout, affects shutdown time
-if [[ $(grep "DefaultTimeoutStopSec=3s" /etc/sysyemd/system.conf) == 0]]; then
+if [[ $(grep "DefaultTimeoutStopSec=3s" /etc/systemd/system.conf) == 0 ]]; then
     sudo sh -c 'echo "DefaultTimeoutStopSec=3s" >> /etc/systemd/system.conf'
 else
     echo The default systemd timeout is already 3 seconds, skipping
