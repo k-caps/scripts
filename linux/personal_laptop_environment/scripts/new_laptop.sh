@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# To run this script on your laptop run:
+printf "To run this script on your laptop run:\n"
 printf 'sh -c "$(wget https://gitlab.com/k-caps/scripts/-/raw/master/linux/personal_laptop_environment/new_laptop.sh -O -)"\n'
 
 # Fix SSH key permissions
@@ -14,7 +14,25 @@ sudo sed 's|mirror://mirrors.ubuntu.com/mirrors.txt|http://archive.ubuntu.com/ub
 sudo apt update ; sudo apt upgrade
 
 # Get the basics
-sudo apt install -y git tmux python3-pip geany vim-nox python3 xfce4-terminal powerline python3-venv wget gthumb timeshift okular youtube-dl xournal
+if [ -n "$(which apt)" ]; then
+  printf  "\n\nDebian/*buntu detected, using apt\n\n"
+  sudo apt update
+  sudo apt install -y git tmux python3-pip geany vim-nox python3 xfce4-terminal powerline python3-venv wget gthumb timeshift okular youtube-dl xournal
+elif [ -n "$(which yum)" ]; then
+  printf "\n\nfedora/rhel/centos detected, using yum\n\n"
+  sudo yum update
+  sudo yum install -y git tmux python3-pip geany vim python3 xfce4-terminal powerline python3-venv wget gthumb timeshift okular youtube-dl xournal
+elif [ -n "$(which pamac)" ]; then
+  printf "\n\nArch/Manjaro detected, using pacman\n\n"
+  sudo pacman -Sy
+  # If it doesn't work, make sure "Extra" is enabled in /etc/pacman.conf 
+  sudo yes | pacman -S git tmux geany python neovim python-pip python-virtualenv xfce4-terminal powerline wget gthumb timeshift okular xournalpp youtube-dl
+else
+  echo Install the following packages and then manually continue the script from this point:
+  echo "git tmux python3-pip geany vim-nox python3 xfce4-terminal powerline python3-venv wget gthumb timeshift okular youtube-dl xournal"
+  exit
+fi
+
 pip install powerline-status
 
 # Get specialized apps that aren't in the repos:
@@ -51,6 +69,7 @@ else
 fi
 
 # Openfortigui VPN: https://hadler.me/linux/openfortigui/
+# debian
 if [[ $(dpkg -l | grep fortigui | wc -l) == 0 ]]; then
     wget https://apt.iteas.at/iteas/pool/main/o/openfortigui/openfortigui_0.9.5-1_amd64_focal.deb -O openfortigui.deb
     sudo apt install ./openfortigui.deb -y
@@ -58,15 +77,17 @@ if [[ $(dpkg -l | grep fortigui | wc -l) == 0 ]]; then
 else
     echo Openfortgui is already installed, skipping   
 fi
+# must add AUR!
 
-# Albert global search: https://software.opensuse.org/download.html?project=home:manuelschneid3r&package=albert
-if [[ $(dpkg -l | grep albert | wc -l) == 0 ]]; then
-    wget https://download.opensuse.org/repositories/home:/manuelschneid3r/Debian_11/amd64/albert_0.17.3-0_amd64.deb -O albert.deb
-    sudo apt install ./albert.deb -y
-    rm -f albert.deb
-else
-    echo Albert is already installed, skipping   
-fi
+## Albert global search: https://software.opensuse.org/download.html?project=home:manuelschneid3r&package=albert
+# not necessary on gnome, must add conditional for apt/yum/pamac
+#if [[ $(dpkg -l | grep albert | wc -l) == 0 ]]; then
+#    wget https://download.opensuse.org/repositories/home:/manuelschneid3r/Debian_11/amd64/albert_0.17.3-0_amd64.deb -O albert.deb
+#    sudo apt install ./albert.deb -y
+#    rm -f albert.deb
+#else
+#    echo Albert is already installed, skipping   
+#fi
 
 # Docker
 if [[ $(dpkg -l | grep docker | wc -l) == 0 ]]; then
@@ -119,8 +140,15 @@ else
 fi
 
 # Change to oh my zsh
-if [[ $(echo $SHELL | grep zsh |wc -l) == 0 ]]; then 
-    sh -c "$(wget https://gitlab.com/k-caps/scripts/-/raw/master/linux/zsh/config_zsh.sh -O -)"
+if [[ $(echo $SHELL | grep zsh |wc -l) == 0 ]]; then
+    sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
+    cd ~
+    touch .aliases
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/  zsh-syntax-highlighting
+    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/ zsh-autosuggestions
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+    curl https://gitlab.com/k-caps/scripts/-/raw/master/linux/zsh/zshrc | sed "s|/home/kobi|$HOME|g"  > ~/.zshrc
+    zsh
 else
     echo The default shell is already ZSH, skipping
 fi
