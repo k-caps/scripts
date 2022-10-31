@@ -1,8 +1,9 @@
 #!/bin/bash
 
 bprintf () { 
-    echo "#****************************************************************************************"
+    echo "**********************************************************************************************************************************"
     printf "$1\n"
+    echo "**********************************************************************************************************************************"
 }
 
 bprintf "To run this script on your laptop run:\nbash -c \"\$(wget https://gitlab.com/k-caps/scripts/-/raw/master/linux/personal_laptop_environment/new_laptop.sh -O -)\""
@@ -15,14 +16,16 @@ chmod 0644 ~/.ssh/*.pub
 bprintf "Get my apps from default repos"
 if [ -n "$(which apt)" ]; then
   bprintf  "Debian/*buntu detected, using apt as package manager"
+  PKG="apt"
   # Make sure I'm not using the local mirrors on ubuntu:
   sudo sed -i 's|mirror://mirrors.ubuntu.com/mirrors.txt|http://archive.ubuntu.com/ubuntu/|' /etc/apt/sources.list
   sudo apt update
   sudo apt install -y git tmux python3-pip geany vim-nox python3 xfce4-terminal powerline python3-venv wget gthumb timeshift okular youtube-dl xournal zsh
 elif [ -n "$(which yum)" ]; then
-  bprintf "Fedora/rhel/centos detected, using yum as package manager'"
+  bprintf "Fedora/rhel/centos detected, using yum as package manager"
+  PKG="yum"
   sudo yum update
-  sudo yum install -y git tmux python3-pip geany vim python3 xfce4-terminal powerline python3-venv wget gthumb timeshift okular youtube-dl xournal zsh
+  sudo yum install -y git tmux python3-pip geany vim python3 xfce4-terminal powerline python-virtualenv wget gthumb timeshift okular youtube-dl xournal zsh
 elif [ -n "$(which pamac)" ]; then
   bprintf "Arch/Manjaro detected, using pacman as package manager"
   sudo pacman -Sy
@@ -53,10 +56,12 @@ else
     bprintf "Hack font is already installed, skipping"
 fi
 
+# For Gnome only
 bprintf "Shell theme, cursors, and icons:"
 cd ~/Downloads && mkdir -p Themes && cd Themes
 if [[ $(ls | grep WhiteSur |wc -l) != 3 ]]; then
     theme_repos=("cursors" "gtk-theme" "icon-theme")
+    mkdir -p $HOME/.local/share/icons/WhiteSur-cursors
     for repo in "${theme_repos[@]}" ; do
         git clone https://github.com/vinceliuice/WhiteSur-$repo
         cd WhiteSur-$repo
@@ -71,15 +76,33 @@ fi
 
 bprintf "Openfortigui VPN:"
 # https://hadler.me/linux/openfortigui/
-# debian
-if [[ $(dpkg -l | grep fortigui | wc -l) == 0 ]]; then
-    wget https://apt.iteas.at/iteas/pool/main/o/openfortigui/openfortigui_0.9.5-1_amd64_focal.deb -O openfortigui.deb
-    sudo apt install ./openfortigui.deb -y
-    rm -f openfortigui.deb
-else
-    bprintf "Openfortgui is already installed, skipping"   
+if [[ $PKG == "apt" ]]; then
+         # debian
+        if [[ $(dpkg -l | grep fortigui | wc -l) == 0 ]]; then
+            wget https://apt.iteas.at/iteas/pool/main/o/openfortigui/openfortigui_0.9.5-1_amd64_focal.deb -O openfortigui.deb
+            sudo apt install ./openfortigui.deb -y
+            rm -f openfortigui.deb
+        else
+            bprintf "Openfortgui is already installed, skipping"   
+        fi
+elif [[ $PKG == "yum" ]]; then
+	if [[ $(which openfortigui | wc -l) == 0 ]]; then
+		sudo dnf install qt5-qtbase-devel openssl-devel qtkeychain-qt5-devel -y
+		mkdir ~/Downloads/Openfortgui && cd ~/Downloads/Openfortgui
+		git clone https://github.com/theinvisible/openfortigui.git
+		cd openfortigui && git submodule init && git submodule update
+		qmake-qt5 && make -j4
+		
+		# install it as an application
+		sudo cp openfortigui/app-entry/openfortigui.png /usr/share/pixmaps
+		sudo cp openfortigui/app-entry/openfortigui.desktop /usr/share/applications
+		sudo cp openfortigui/openfortigui /usr/bin/
+	else
+	    bprintf "Openfortgui is already installed, skipping"
+	fi
 fi
 # must add AUR!
+cd ~/Downloads
 
 ## Albert global search: https://software.opensuse.org/download.html?project=home:manuelschneid3r&package=albert
 # not necessary on gnome, must add conditional for apt/yum/pamac
@@ -91,15 +114,25 @@ fi
 #    bprintf "Albert is already installed, skipping"
 #fi
 
-bprintf "Docker"
-if [[ $(dpkg -l | grep docker | wc -l) == 0 ]]; then
-    curl -fsSL https://get.docker.com -o get-docker.sh
-    sudo sh get-docker.sh
-    rm get-docker.sh
-    sudo groupadd docker
-    sudo usermod -aG docker $USER
-else
-    bprintf "Docker is already installed, skipping"   
+bprintf "Docker:"
+if [[ $PKG == "apt" ]]; then
+	if [[ $(dpkg -l | grep docker | wc -l) == 0 ]]; then
+	    curl -fsSL https://get.docker.com -o get-docker.sh
+	    sudo sh get-docker.sh
+	    rm get-docker.sh
+	    sudo groupadd docker
+	    sudo usermod -aG docker $USER
+	else
+	    bprintf "Docker is already installed, skipping"   
+	fi
+elif [[ $PKG == "yum" ]]; then
+	if [[ $(which docker | wc -l) == 0 ]]; then
+		sudo dnf -y install dnf-plugins-core
+		sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+		sudo dnf install -y  docker-ce docker-ce-cli containerd.io docker-compose-plugin
+		sudo groupadd docker
+		sudo usermod -aG docker $USER
+	fi
 fi
 
 bprintf "Setting up git scripts repo"
@@ -127,20 +160,21 @@ done
 cd ..
 rm -rf 'Gnome Extensions'
 
-bprintf "Fix touchscreen scrolling in firefox"
-if [[ $(grep MOZ_USE_XINPUT2 /etc/security/pam_env.conf) == 0 ]]; then
-    bprintf "open about:config in firefox, and set dom.w3c_touch_events.enabled=1 (default is 2)."
-    sleep 5 && bprintf "Once you have updated the settings in Firefox click any key to continue.." ; read -n 1
-    sudo sh -c 'echo MOZ_USE_XINPUT2 DEFAULT=1 >> /etc/security/pam_env.conf'
-else
-   bprintf "Touchscreen scrolling is already enabled for Firefox, skipping"
+bprintf "Fix touchscreen scrolling in firefox" # only appears to be necessary on debian based distros
+if [[ $PKG == "apt" ]]; then
+	if [[ $(grep MOZ_USE_XINPUT2 /etc/security/pam_env.conf | wc -l) == 0 ]]; then
+	    bprintf "open about:config in firefox, and set dom.w3c_touch_events.enabled=1 (default is 2)."
+	    sleep 5 && bprintf "Once you have updated the settings in Firefox click any key to continue.." ; read -n 1
+	    sudo sh -c 'echo MOZ_USE_XINPUT2 DEFAULT=1 >> /etc/security/pam_env.conf'
+	else
+	   bprintf "Touchscreen scrolling is already enabled for Firefox, skipping"
+	fi
 fi
 
 bprintf "Change to oh my zsh"
 if [[ $(echo $SHELL | grep zsh |wc -l) == 0 ]]; then
-    sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
+    bash -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
     cd ~
-    touch .aliases
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
@@ -156,10 +190,11 @@ dotfiles=("aliases" "bashrc" "zshrc" "vimrc" "tmux.conf")
 for file in "${dotfiles[@]}" ; do
 	wget https://gitlab.com/k-caps/scripts/-/raw/master/linux/personal_laptop_environment/dotfiles/$file
 	mv $file ~/.$file
+    chmod 0755 ~/.aliases
 done
 
-brpintf "Disable default systemd timeout"
-# affects shutdown time on debian and ubuntu, maybe others as well
+bprintf "Disable default systemd timeout"
+# affects shutdown time on debian, ubuntu, and fedora. maybe others as well
 if [[ $(grep "DefaultTimeoutStopSec=3s" /etc/systemd/system.conf) == 0 ]]; then
     sudo sh -c 'echo "DefaultTimeoutStopSec=3s" >> /etc/systemd/system.conf'
 else
