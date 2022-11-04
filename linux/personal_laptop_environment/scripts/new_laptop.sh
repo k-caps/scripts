@@ -157,7 +157,11 @@ g_extension_ids=("3826" "779" "3730" "1319" "755" "3843" "4031" "657" "906" "289
 for ext in "${g_extension_ids[@]}" ; do
 	./gnome-shell-extension-installer $ext
 done
-cd ..
+cd .. 
+
+# Install Search Light extension via git, more reliable than the extension script
+git clone http://github.com/icedman/search-light
+cd search-light && make && cd .. && rm -rf search-light
 rm -rf 'Gnome Extensions'
 
 bprintf "Fix touchscreen scrolling in firefox" # only appears to be necessary on debian based distros
