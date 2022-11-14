@@ -20,19 +20,19 @@ if [ -n "$(which apt)" ]; then
   # Make sure I'm not using the local mirrors on ubuntu:
   sudo sed -i 's|mirror://mirrors.ubuntu.com/mirrors.txt|http://archive.ubuntu.com/ubuntu/|' /etc/apt/sources.list
   sudo apt update
-  sudo apt install -y git tmux python3-pip geany vim-nox python3 xfce4-terminal powerline python3-venv wget gthumb timeshift okular youtube-dl xournal zsh
+  sudo apt install -y git tmux python3-pip geany vim-nox python3 xfce4-terminal powerline python3-venv wget gthumb timeshift okular youtube-dl xournal zsh curl
 elif [ -n "$(which yum)" ]; then
   bprintf "Fedora/rhel/centos detected, using yum as package manager"
   PKG="yum"
   sudo yum update
-  sudo yum install -y git tmux python3-pip geany vim python3 xfce4-terminal powerline python-virtualenv wget gthumb timeshift okular youtube-dl xournal zsh
+  sudo yum install -y git tmux python3-pip geany vim python3 xfce4-terminal powerline python-virtualenv wget gthumb timeshift okular youtube-dl xournal zsh curl
 elif [ -n "$(which pamac)" ]; then
   bprintf "Arch/Manjaro detected, using pacman as package manager"
   sudo pacman -Sy
   # If it doesn't work, make sure "Extra" is enabled in /etc/pacman.conf 
-  sudo yes | pacman -S git tmux geany python neovim python-pip python-virtualenv xfce4-terminal powerline wget gthumb timeshift okular xournalpp youtube-dl zsh
+  sudo yes | pacman -S git tmux geany python neovim python-pip python-virtualenv xfce4-terminal powerline wget gthumb timeshift okular xournalpp youtube-dl zsh curl
 else
-  bprintf "Install the following packages and then manually continue the script from this point:\ngit tmux python3-pip geany vim-nox python3 xfce4-terminal powerline python3-venv wget gthumb timeshift okular youtube-dl xournal"
+  bprintf "Install the following packages and then manually continue the script from this point:\ngit tmux python3-pip geany vim-nox python3 xfce4-terminal powerline python3-venv wget gthumb timeshift okular youtube-dl xournal curl"
   exit
 fi
 
