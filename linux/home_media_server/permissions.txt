@@ -1,0 +1,18 @@
+EZARR DIRECTORY:
+drwxrwxrwx  4 root mediacenter 4096 Nov 19 21:31 data/
+drwxr-xr-x 11 root root        4096 Mar  5 19:36 docker/
+-rw-rw-r--  1 bard bard        4537 Mar  5 21:36 docker-compose.yml
+-rw-r--r--  1 root root         472 Mar  5 19:35 .env
+-rw-rw-r--  1 bard bard         446 Nov 19 21:35 .env.sample
+drwxrwxr-x  8 bard bard        4096 Nov 19 21:28 .git/
+drwxrwxr-x  4 bard bard        4096 Nov 19 21:28 .github/
+-rw-rw-r--  1 bard bard        1070 Nov 19 21:28 LICENSE.md
+-rw-rw-r--  1 bard bard        5425 Nov 19 21:28 README.md
+-rwxrwxr-x  1 bard bard        1367 Nov 19 21:28 setup.sh*
+
+DATA MOUNT:
+drwxrwx--- 1 root plugdev      4096 Jul 24  2022  Anime/
+drwxrwx--- 1 root plugdev         0 Sep 19  2021  Library/
+drwxrwx--- 1 root plugdev      4096 Apr 17  2022  Movies/
+drwxrwx--- 1 root plugdev         0 Sep 23  2021  TV/
+
