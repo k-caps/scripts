@@ -1,0 +1,1 @@
+UUID=5E9A37079A36DAEB /media/bard/windisk ntfs rw,auto,users,nls=utf8,umask=007,gid=46  0  0
