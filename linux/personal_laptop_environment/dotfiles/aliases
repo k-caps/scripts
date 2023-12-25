@@ -1,4 +1,12 @@
 alias locate="locate -i" 
 alias vi="vim"
 alias killapp="~/scripts/killapp.sh"
+alias python="printf \"*****\nPlease use python3 or python2. Defaulting to python3...\n*****\n\""
 #alias python="python3"
+gacp() { 
+    git add --all && git commit -m "$@" && git push
+}
+alias gitsubs="git submodule init && git submodule update --remote"
+ports() {
+    echo Port: Program: | column -t ; sudo ss -plntu | awk 'NR>1 {print $5" "$7}' | sed 's/users:((//g ; s/"//g ; s/))//g' | awk -F ',' '{print $1" "$2}' | awk -F ':' '{print $2}' | awk '{print $1" "$2}' | column -t | sort | uniq
+}
