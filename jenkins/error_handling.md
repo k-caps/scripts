@@ -5,7 +5,7 @@ try {
   // any code goes here
 }
 catch(Exception ex) {
-    error_message = ex.toString()
+    env.error_message = ex.toString()
     error('<Stage> failed.')
 }
 ```
@@ -14,9 +14,8 @@ catch(Exception ex) {
   post {
     always {
       script {
-        error_message = error_message ?: 'No error or unhandled exception'
         post_actions.always()
-        post_actions.shutdown(error_message)
+        post_actions.shutdown(env.error_message)
       }
     }
   } 
