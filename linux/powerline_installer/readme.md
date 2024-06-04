@@ -1,6 +1,6 @@
 
 **Installation:**    
-`wget https://raw.githubusercontent.com/k-caps/linux-scripts/master/powerline_installer/install.sh && sudo sh install.sh`       
+`wget https://github.com/k-caps/scripts/raw/master/linux/powerline_installer/install.sh && sudo sh install.sh`       
 
 This script installs powerline and a patched font, and configures bash and vim to use it.    
 You must still manually change the font your terminal emulator app uses to "Hack Regular" after the script runs, or your prompt will look bugged.
