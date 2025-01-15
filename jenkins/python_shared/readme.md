@@ -1,5 +1,5 @@
 # Shared module which allows using python files as Jenkinsfile
-TODO: Make a list here of each file in the module and what it used for along with a minimal usage example
+TODO: Make a list here of each file in the module and what it used for along with a minimal usage example. This file should be a table of contents displaying each component as a separate readme.
 
 
 
@@ -11,7 +11,7 @@ pip install ansible-core
 This component abstracts read-only access to Ansible Vault, with a single predefined vault file and vault password file.   
 This mimics the behavior and expeirnce of working with the Jenkins credentials store.
 
-# To get a single secret:
+To get a single secret like a normal Jenkins withCredentials():
 
 ```python
 with Vault({"secret_id": "admin_password", "var": "mypass"}) as vault:
