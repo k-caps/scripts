@@ -1,7 +1,8 @@
 # Shared module which allows using python files as Jenkinsfile
 TODO: Make a list here of each file in the module and what it used for along with a minimal usage example. This file should be a table of contents displaying each component as a separate readme.
 
-
+TODO: add component or script that converts jenkins xml to vault - probably subprocess would be easier than using the api.  
+Another option is using the jenkins script console with or without a job and dumping into a vault - thats the safest and easiest way.
 
 ### vaultwrapper.py
 ##### Requirements:
@@ -46,7 +47,7 @@ ansible-vault encrypt_string --vault-pass-file vaultpass.txt $file_contents --na
 ansible-vault encrypt_string --vault-pass-file vaultpass.txt '1234' --name admin_password >> vault.yml
 ```
 
-To view values run ansible CLI:
+To view values, run `ansible` CLI:
 ```bash
 ansible localhost -m ansible.builtin.debug -a var="admin_password" -e "@vault.yml" --vault-pass-file vaultpass.txt
 localhost | SUCCESS => {
