@@ -1,0 +1,203 @@
+hostnamectl set-hostname maas
+# also edit in /etc/hosts
+
+# Add artifactory sources list to maas server itself
+
+mkdir -p /usr/local/share/ca-certificates
+wget --no-check-certificate -O /usr/local/share/ca-certificates/our-casub.crt "https://artifactory.company.com/artifactory/generic-local/company/certificate/ca-certificates/our-casub.crt"
+wget --no-check-certificate -O /usr/local/share/ca-certificates/RootCA.crt "https://artifactory.company.com/artifactory/generic-local/company/certificate/ca-certificates/RootCA.cer"
+echo 'Acquire { https::Verify-Peer "false"; }' > /etc/apt/apt.conf.d/99verify-peer.conf
+sed 's|http:|https:|g'  /etc/apt/sources.list -i
+apt update
+update-ca-certificates
+rm /etc/apt/apt.conf.d/99verify-peer.conf
+
+cat > /usr/share/keyrings/maas.asc << 'EOF' 
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Comment: Hostname:
+Version: Hockeypuck 2.2
+
+xsFNBFXVlyMBEACqM3iz2EGJE0iE3/AAbNCnbBB25m3AWaSxJk+GJfkAAYWGqAKi
+uWceCcetdNKNTKd8frSZFsRB7IceZr0u5sWpSYur6uoMNHzS8Y5cGdyAVrnEZtbd
+ak652x13jlX7nrcE9g//lD0w254XW1Loyy5YOGWfUmJkGImndFWtkqd1J7SCVMMW
+5l/nS4LwsOx/wTxL5m/cFQLi67JyJGqszKXS88oHT1YFBWPyl1VcXifFwecH/32f
+Rr6WGpEAaxGF4dO45WGvJIQs2yiT5f9ha3tuJCbzI58t9BxiR1MMZ9AAPjdNO6JZ
+kX2q+/uqgJg9IWNcJ4E+fCgl/hvoB3AURXHmaagH7nMb/6OA/QFSbiR3eciSJ89c
+EkK+7d0br+p2+shO/dOV6lUrbidVVjiiTdmYlyXzuPcvPWVYmXjDzsOi0sSZZNMq
+8G3/pAavjyGUvZtb781V1j9/8l3o5ScAPzzamT2W4rF+nCh1iHYz7+wP2XDNifE/
+oK7fLNb0ig1G5S4PCqZHUp95LUaJrFczYCPwlERUxIC3B9a+UC3SdZmRuuSENWNs
+YxKUlbU07GCrjxtcDhQHGQDVJDUGbqqkA4B/iKrwW3reA5fHo3yocQMX7YR6C2/Q
+n+wn/EoEPIB1wkzAQvarnNCCdwjD5AB1VhANEFwUKMWHDEsofKOSTBYvgQARAQAB
+zRZMYXVuY2hwYWQgUFBBIGZvciBNQUFTwsF4BBMBAgAiBQJV1ZcjAhsDBgsJCAcD
+AgYVCAIJCgsEFgIDAQIeAQIXgAAKCRAE5/3FaE1KHDH8D/9Mdc+4tw8foj6lILCg
+fBRi9S37tOyV2m5YvD+qRzefUYgFKXYxleO+H9cjFH2XyHIBwa15dD/Yg+DkcAKb
+9f/a1llHNTzLkHiNVQl4tl8qeJPj2Obm53HsjhazIgh0L208GRGJxO4HSBbrBTo8
+FNF00Cl52josZdG1mPCSDuJm1AkeY9q4WeAOnekquz2qjUa+L8J8z+HVPC9rUryE
+NXdwCyh3TE0G0occjUAsb5oOu3bcKSbVraq+trhjp9sz7o7O4lc4+cT2gFIWl1Rp
+1djzXH8flU/s3U1vl0RcIFEZbuqsuDWukpxozq4M5y7VKq4y5dq7Y0PbMuJ0Dvgn
+Bn4fbboMji4LYfgn++vosZv/MXkPIg6wubxdejVdrEoFRFxCcYqW4wObY8vxrvDr
+Mjp4HrQ2guN8OJDUYnLdVv9P1MMKDAMrDjRdy3NsBpd7GuA9hXRXBPZ8y74nIwCR
+jEDnIz5jsws9PxZIVabieoCI6RibJMw8qpuicM97Ss2Uq5vURvTBQ3f6wYjCMsdt
+yqjz6TVJ3zwK9NPfMhXGVrrsxBOxO382r6XXuUbTcXZTDjAkoMsBqfjidlGDGTb3
+Un0LkZJfpXrmZehyvO/GlsoYiFDhGf+EXJzKwRUEuJlIkVEZ72OtuoUMoBrjuADR
+lJQUW0ZbcmpOxjK1c6w08nhSvA==
+=mlqO
+-----END PGP PUBLIC KEY BLOCK-----
+EOF
+
+
+# BASHRC:
+cat >> /root/.bashrc << 'EOF'
+export DEBIAN_FRONTEND=noninteractive
+export TZ="Asia/Jerusalem"
+export DBUSER=maas
+export DBPASS=maaspass-replacebeforerunning
+export DBNAME=maasdb
+export PROFILE=admin
+export EMAIL_ADDRESS=devops@company.com
+mids() {
+    maas $PROFILE machines read | jq -r '(["HOSTNAME","SYSID"] | (., map(length*"-"))),(.[] | [.hostname, .system_id]) | @tsv' | column -t
+}
+getmid() {
+    mids | grep $1 | awk '{print $2}'
+}
+EOF
+
+# APT
+apt update
+sudo apt install -y tzdata software-properties-common curl gnupg postgresql postgresql-contrib python3-pip
+
+ln -fs /usr/share/zoneinfo/$TZ /etc/localtime &&  echo $TZ > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata 
+
+sudo bash -c 'echo "deb [signed-by=/usr/share/keyrings/maas.asc] https://artifactory.company.com/artifactory/deb-maas-remote/ jammy main" > /etc/apt/sources.list.d/maas.list'
+sudo apt update && sudo apt install -y maas
+
+sudo systemctl disable --now systemd-timesyncd
+
+# POSTGRES
+sudo chmod 0647 /etc/postgresql/14/main/pg_hba.conf
+echo "host		$DBNAME		$DBUSER		127.0.0.1/32		trust" >> /etc/postgresql/14/main/pg_hba.confsystemctl restart postgresql
+echo "local		$DBNAME		$DBUSER		trust" >> /etc/postgresql/14/main/pg_hba.confsystemctl restart postgresql
+sudo chmod 0640 /etc/postgresql/14/main/pg_hba.conf
+# sudo -i -u postgres psql -c "CREATE USER \"$DBUSER\" WITH ENCRYPTED PASSWORD '$DBPASS'"
+
+
+## NO HTTPS APT:
+# Add a site to nginx - it proxies artifactory but is accessible via HTTP:
+# /etc/nginx/sites-available/artifactory
+server {
+    listen 8080;
+    server_name 192.168.1.150;
+
+    location /artifactory/ {
+        proxy_pass https://artifactory.company.com/artifactory/; # Use HTTPS for Artifactory
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+
+        proxy_redirect off;
+        proxy_buffering off;
+
+        # Disable SSL verification - either that or the trust cer here makes it work. IDK, IDC atm.
+        proxy_ssl_verify off;
+        proxy_ssl_trusted_certificate /usr/local/share/ca-certificates/our-casub.crt;
+    }
+
+    location /ui/native/ {
+        return 403;
+    }
+}
+
+sudo ln -s /etc/nginx/sites-available/artifactory /etc/nginx/sites-enabled/
+systemctl restart nginx
+
+# DNS - once you have a dns record to maas do:
+cat > /etc/nginx/sites-available/default << 'EOF'
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+    
+	root /var/www/html;
+	index index.html index.htm index.nginx-debian.html;
+	server_name maas.company.com;
+
+	location / {
+
+        # Forward all traffic to MAAS on port 5240
+        proxy_pass          http://127.0.0.1:5240;
+
+        # Use HTTP/1.1 for keep-alive and upgrade support
+        proxy_http_version  1.1;
+
+        # Ensure host headers and client IP are preserved
+        proxy_set_header    Host               $host;
+        proxy_set_header    X-Real-IP          $remote_addr;
+        proxy_set_header    X-Forwarded-For    $proxy_add_x_forwarded_for;
+        proxy_set_header    X-Forwarded-Proto  $scheme;
+
+        # WebSocket support
+        proxy_set_header    Upgrade            $http_upgrade;
+        proxy_set_header    Connection         "upgrade";
+	}
+}
+EOF
+systemctl reload nginx
+
+
+
+## CONFIGURE MAAS: 
+sudo maas createadmin --username admin --password <REDACTED INSERT PASSWORD HERE> --email $EMAIL_ADDRESS
+echo "maas login admin http://127.0.0.1:5240/MAAS/api/2.0 $(maas apikey --generate --username admin)" >> ~/.bashrc
+
+# Go to UI, log in, skip everything, go to <server url>/MAAS/r/images:
+Set "Change Source" URL to:
+https://artifactory.company.com/artifactory/maas-images-remote/ephemeral-v3/stable/
+Select desired images
+
+
+maas $PROFILE maas set-config name=upstream_dns value="1.1.1.1"
+maas $PROFILE sshkeys create "key=$SSH_KEY"
+#maas admin package-repositories create name="Ubuntu archive" url="http://<MAAS-IP-OR-DNS>:8080/artifactory/debian-remote"
+
+
+# https://maas.io/docs/about-the-machine-life-cycle
+
+# easy log tailing for commisions/enlist/deploy : 
+journalctl -xef | grep -v 'pam_unix(sudo:session)' | grep  -v 'maas : PWD=/ ; USER=root ; COMMAND'
+
+#Add this to:
+/etc/default/named
+
+# startup options for the server
+OPTIONS="-u bind -4"
+
+
+# The physical machines that we want to control must be connected to the switch as access and NOT as trunk!!!
+
+
+###### Commisioning scripts:
+Save these to your local computer and upload them to maas
+
+
+cat >> ~/.bashrc << 'EOF' 
+PATH=$PATH:/root
+maas login admin http://127.0.0.1:5240/MAAS/api/2.0 redacted:redacted:redacted
+mids() {
+    maas admin machines read | jq -r '(["HOSTNAME","SYSID"] | (., map(length*"-"))),(.[] | [.hostname, .system_id]) | @tsv' | column -t
+}
+getmid() {
+    mids | grep $1 | awk '{print $2}'
+}
+EOF
+
+
+
+To get view all machine IDs:
+mids # this is a bash alias Kobi defined for root@maas
+To directly get an individual machine ID:
+mids | grep machine-name | awk '{print $2}'
+
+To deploy a machine with cloud-init:
+maas admin machine deploy $(getmid machine-name) user_data="$(base64 /path/to/cloud-init-baseline.yml)"
+	
