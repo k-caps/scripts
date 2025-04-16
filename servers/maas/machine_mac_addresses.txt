@@ -1,0 +1,3 @@
+hostname                 data_ip        power_ip       vnic1_mac           vnic2_mac
+homelab-k8s-ctrl-01      192.168.1.21   192.168.2.21   00:25:b5:a0:00:5c   00:25:b5:a0:00:5d
+homelab-k8s-wrkr-02      192.168.1.22   192.168.2.22   00:25:b5:a0:00:54   00:25:b5:a0:00:55
