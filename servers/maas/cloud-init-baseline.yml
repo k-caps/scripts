@@ -1,0 +1,94 @@
+#cloud-config
+
+# Example cloud init userdata script that sets a machine to a certain well known state.
+
+## Create "devops" user with sudo privileges and SSH key access
+users:
+  - name: devops
+    gecos: Devops User
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    passwd: "{{ 'REPLACE_DEVOPS_PASSWORD_HERE' | password_hash('sha512') }}"
+    groups: sudo
+    lock_passwd: false
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCdCyJ+4RvIE1GZUYqtanzxNLIF3oGxGZNtVzkfOyCBmMUdeuhhBIVjCHAXTKv14jszHzYqrfu9zCxGwYcOmfyQTXud+PLNGukC38MQ/3NfdNPf+/25MTy0ZBm8j2s/zuni4VZSSssE/Q4nWc5J5VNbtjAZpN1PGmsfSAjDxIwiuxC6zqz0lJDTxP/PUQ/Bn03cV+fN0Bb+QUfRtL+V8QgwmeKukykKENUiG1me+rKn1Vd2NvBnOIhkBTjrOOCmQQCLLyU6ts9+XsKVEA914K5tL9cvI0VulXjr6zR+h42a7DpNm8lTLfGQielGIn0dnTHiqdKXiRgufwYIA2w1Gls7 devops@allhosts
+
+runcmd:
+  - mkdir -p /home/devops/.ssh
+  - chown -R devops:devops /home/devops/.ssh
+  - chmod 0700 /home/devops/.ssh
+  - chmod 0600 /home/devops/.ssh/authorized_keys
+
+## Get builduser SSH key for cloning infra baseline
+write_files:
+  - path: /root/.ssh/builduser
+    content: |
+      -----BEGIN RSA PRIVATE KEY-----
+      MIIEpAIBAAKCAQEAv2sPNEAhEljA1KlGjfJz1b96A+a22Xfpa9Q98nWtE74LtYH8
+
+      REDACTED! REPLACE THIS WITH THE ACTUAL VALUE BEFORE RUNNING!
+
+      1Bwg3GRwRyM1jlwyrOrqgfbwmLBS4EnuLA+VuVSn6G5ujT8RAYUj2Q==
+      -----END RSA PRIVATE KEY-----
+    permissions: '0600'
+  - path: /root/.ssh/config
+    content: |
+      Host bitbucket.nsogroup.com
+          IdentityFile = /root/.ssh/builduser
+          HostkeyAlgorithms +ssh-rsa
+          PubkeyAcceptedAlgorithms +ssh-rsa
+          StrictHostKeyChecking no
+    permissions: '0600'
+  - path: /root/vault-pass
+    content: |
+      REPLACE_DEVOPS_PASSWORD_HERE
+    permissions: '0600'
+  - path: /root/inventory.yaml
+    content: |
+      ---
+      all:
+        vars:
+          create_qadmin: false
+          create_windows_deploy_path: false
+        children:
+          ubuntu:
+            vars:
+              ansible_user: root
+              ansible_python_interpreter: "/usr/bin/python3"
+            children:
+              infra_baseline:
+                hosts:
+                  baseline_lin:
+                    ansible_host: localhost
+                    ansible_connection: local
+    permissions: '0644'
+  - path: /root/cloud-init-final.sh
+    content: |
+      #!/bin/bash
+
+      ## Setup custom certificates & disable SSL verification for APT
+      echo 'Acquire { https::Verify-Peer false }' > /etc/apt/apt.conf.d/99verify-peer.conf
+      chmod 0644 /etc/apt/apt.conf.d/99verify-peer.conf
+      mkdir -p /usr/local/share/ca-certificates
+      wget --no-check-certificate -O /usr/local/share/ca-certificates/nso-casub21.crt https://artifactory.company.com/artifactory/generic-local/ca-certificates/our-casub.crt
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+
+      # Clone, adapt, and run Infra baseline on localhost
+      GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no"
+      git clone ssh://git@github.nsogroup.com/k-caps/scripts.git /home/kcaps/maas/scripts
+      mv /home/kcaps/maas/inventory.yaml /home/kcaps/maas/scripts/inventory.yaml
+      mv /home/kcaps/maas/vault-pass /home/kcaps/maas/scripts/vault-pass
+
+      apt install -y ansible
+      cd /root/infra/
+      ansible-playbook /home/kcaps/maas/scripts/playbooks/deploy_baseline.yml -i /home/kcaps/maas/scripts/inventory.yaml -b --vault-pass-file /home/kcaps/maas/scripts/vault-pass
+      apt remove -y ansible
+      rm -rf /root/infra
+      rm -f /etc/apt/apt.conf.d/99verify-peer.conf
+    permissions: '0744'
+
+runcmd:
+  - bash /root/cloud-init-final.sh
